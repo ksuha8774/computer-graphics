@@ -1,22 +1,11 @@
 #include <glew.h>
 #include <glfw3.h>
 #include <iostream>
-#include <fstream>
-#include <string>
 
-//Функция для обработки ошибок GLFW
 void error_callback(int error, const char* description) {
     std::cerr << "Error: " << description << std::endl;
 }
 
-//Функция для чтения файла шейдера
-std::string readShaderFile(const std::string& filename) {
-    std::ifstream file(filename);
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    return content;
-}
-
-//Функция для компиляции шейдера
 GLuint compileShader(const std::string& shaderCode, GLenum shaderType) {
     GLuint shader = glCreateShader(shaderType);
     const char* shaderSource = shaderCode.c_str();
@@ -34,7 +23,6 @@ GLuint compileShader(const std::string& shaderCode, GLenum shaderType) {
     return shader;
 }
 
-//Функция для создания программы шейдеров
 GLuint createShaderProgram(const std::string& vertexShaderCode, const std::string& fragmentShaderCode) {
     GLuint vertexShader = compileShader(vertexShaderCode, GL_VERTEX_SHADER);
     GLuint fragmentShader = compileShader(fragmentShaderCode, GL_FRAGMENT_SHADER);
@@ -66,6 +54,11 @@ int main() {
 
     glfwSetErrorCallback(error_callback);
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     GLFWwindow* window = glfwCreateWindow(640, 480, "Rectangle Example", NULL, NULL);
     if (!window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -80,7 +73,6 @@ int main() {
         return -1;
     }
 
-    //Создание VAO и VBO
     GLuint vao, vbo, ebo;
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -88,7 +80,6 @@ int main() {
 
     glBindVertexArray(vao);
 
-    //Координаты вершин прямоугольника
     GLfloat points[] = {
         -0.5f, -0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
@@ -96,7 +87,6 @@ int main() {
         -0.5f,  0.5f, 0.0f
     };
 
-    //Индексы для отрисовки прямоугольника
     GLuint indices[] = {
         0, 1, 2,
         0, 2, 3
@@ -114,15 +104,25 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    //Чтение и компиляция шейдеров
-    std::string vertexShaderCode = readShaderFile("vertex_shader.glsl");
-    std::string fragmentShaderCode = readShaderFile("fragment_shader.glsl");
+    std::string vertexShaderCode = R"(
+        #version 460 core
+        layout (location = 0) in vec3 vp;
+        void main() {
+            gl_Position = vec4(vp.x, vp.y, vp.z, 1.0);
+        }
+    )";
+
+    std::string fragmentShaderCode = R"(
+        #version 460 core
+        out vec4 frag_colour;
+        uniform vec4 ourColor;
+        void main() {
+            frag_colour = ourColor;
+        }
+    )";
 
     GLuint shaderProgram = createShaderProgram(vertexShaderCode, fragmentShaderCode);
 
-    
-    
-    
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -131,7 +131,6 @@ int main() {
 
         glBindVertexArray(vao);
 
-        //Изменение цвета в зависимости от времени
         float timeValue = glfwGetTime();
         float red = (sin(timeValue) + 1.0f) / 2.0f;
         float green = (cos(timeValue) + 1.0f) / 2.0f;
