@@ -1,7 +1,7 @@
-#ifndef MODEL_H
+#ifndef MODEL_H 
 #define MODEL_H
 
-#include <GL\GL.h>
+#include <GL/GL.h>
 #include "glfw3.h"
 #include <glm.hpp>
 #include <matrix_transform.hpp>
@@ -26,8 +26,28 @@ public:
         loadModel(path);
     }
 
-    void Draw(Shader& shader) {  // Изменено с GLuint на Shader&
+    void Draw(Shader& shader, glm::mat4 OX1tr, glm::mat4 OX2tr, glm::mat4 OX3tr) {
         for (unsigned int i = 0; i < meshes.size(); i++) {
+            glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+            switch (i) {
+            case 0: 
+                modelMatrix = glm::mat4(1.0f);
+                break;
+            case 1: 
+                modelMatrix = OX1tr;
+                break;
+            case 2: 
+                modelMatrix = OX1tr * OX2tr;
+                break;
+            case 3: 
+                modelMatrix = OX1tr * OX2tr * OX3tr;
+                break;
+            default:
+                modelMatrix = glm::mat4(1.0f);
+            }
+
+            shader.setMat4("model", modelMatrix);
             meshes[i].Draw(shader);
         }
     }
@@ -68,13 +88,11 @@ private:
             Vertex vertex;
             glm::vec3 vector;
 
-            // Position
             vector.x = mesh->mVertices[i].x;
             vector.y = mesh->mVertices[i].y;
             vector.z = mesh->mVertices[i].z;
             vertex.Position = vector;
 
-            // Normals
             if (mesh->HasNormals()) {
                 vector.x = mesh->mNormals[i].x;
                 vector.y = mesh->mNormals[i].y;
