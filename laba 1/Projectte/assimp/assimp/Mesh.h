@@ -9,15 +9,15 @@
 using namespace std;
 
 struct Vertex {
-    glm::vec3 Position;  // Позиция вершины
-    glm::vec3 Normal;    // Нормаль вершины
+    glm::vec3 Position;  // РџРѕР·РёС†РёСЏ РІРµСЂС€РёРЅС‹
+    glm::vec3 Normal;    // РќРѕСЂРјР°Р»СЊ РІРµСЂС€РёРЅС‹
 };
 
 class Mesh {
 public:
     vector <Vertex>  vertices;
     vector <unsigned int> indices;
-    unsigned int VAO;  // Идентификатор Vertex Array Object
+    unsigned int VAO;  // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Vertex Array Object
 
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
     {
@@ -38,29 +38,29 @@ public:
     }
 
 private:
-    unsigned int VBO, EBO;  // Идентификаторы буферов
+    unsigned int VBO, EBO;  // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ Р±СѓС„РµСЂРѕРІ
 
     void setupMesh() {
-        // Генерация буферов
+        // Р“РµРЅРµСЂР°С†РёСЏ Р±СѓС„РµСЂРѕРІ
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);
 
         glBindVertexArray(VAO);
 
-        // Заполнение буфера вершин
+        // Р—Р°РїРѕР»РЅРµРЅРёРµ Р±СѓС„РµСЂР° РІРµСЂС€РёРЅ
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-        // Заполнение буфера индексов
+        // Р—Р°РїРѕР»РЅРµРЅРёРµ Р±СѓС„РµСЂР° РёРЅРґРµРєСЃРѕРІ
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
-        // Указание атрибутов вершин (позиция)
+        // РЈРєР°Р·Р°РЅРёРµ Р°С‚СЂРёР±СѓС‚РѕРІ РІРµСЂС€РёРЅ (РїРѕР·РёС†РёСЏ)
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
-        // Указание атрибутов вершин (нормаль)
+        // РЈРєР°Р·Р°РЅРёРµ Р°С‚СЂРёР±СѓС‚РѕРІ РІРµСЂС€РёРЅ (РЅРѕСЂРјР°Р»СЊ)
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 
